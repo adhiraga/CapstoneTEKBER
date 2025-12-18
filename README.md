@@ -200,4 +200,5 @@ To be added
 ## Group Members
 
 Group 10 TEKBER
-- Berkasa Abyan Yudistira
+Muhammad Abyansyah putra Dewanto 5026231052
+Ida Bagus Adhiraga Yudhistira 5026231120
