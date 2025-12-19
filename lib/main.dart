@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'models/game_state.dart';
 import 'screens/auth_screen.dart';
 import 'screens/leaderboard_screen.dart';
+import 'services/sound_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ void main() async {
     );
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
-      print('Firebase already initialized');
+      debugPrint('Firebase already initialized');
     } else {
       rethrow;
     }
@@ -28,7 +29,7 @@ void main() async {
 enum GameMode { ai, multiplayer }
 
 class TicTacTooApp extends StatelessWidget {
-  const TicTacTooApp({Key? key}) : super(key: key);
+  const TicTacTooApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +51,21 @@ class TicTacTooApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late bool _soundEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _soundEnabled = SoundService().soundEnabled;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +84,18 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              _soundEnabled ? Icons.volume_up : Icons.volume_off,
+              color: _soundEnabled ? Colors.green : Colors.grey,
+            ),
+            onPressed: () {
+              setState(() {
+                SoundService().toggleSound();
+                _soundEnabled = SoundService().soundEnabled;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.leaderboard, color: Colors.blue),
             onPressed: () {
@@ -148,13 +174,7 @@ class GameModeButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
 
-  const GameModeButton({
-    Key? key,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onPressed,
-  }) : super(key: key);
+  const GameModeButton({super.key, required this.title, required this.subtitle, required this.icon, required this.onPressed});
 
   @override
   State<GameModeButton> createState() => _GameModeButtonState();
@@ -185,7 +205,7 @@ class _GameModeButtonState extends State<GameModeButton> {
           boxShadow: [
             if (isHovered)
               BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withAlpha((0.3 * 255).round()),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -234,7 +254,7 @@ class _GameModeButtonState extends State<GameModeButton> {
 }
 
 class PlayerNamesScreen extends StatefulWidget {
-  const PlayerNamesScreen({Key? key}) : super(key: key);
+  const PlayerNamesScreen({super.key});
 
   @override
   State<PlayerNamesScreen> createState() => _PlayerNamesScreenState();
@@ -433,12 +453,7 @@ class GameScreen extends StatefulWidget {
   final String? player1Name;
   final String? player2Name;
 
-  const GameScreen({
-    Key? key,
-    required this.gameMode,
-    this.player1Name,
-    this.player2Name,
-  }) : super(key: key);
+  const GameScreen({super.key, required this.gameMode, this.player1Name, this.player2Name});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -517,6 +532,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _updateAIGameResult() {
+    if (gameState.winner != null) {
+      SoundService().playWinSound();
+    } else if (gameState.gameOver) {
+      SoundService().playDrawSound();
+    }
     _saveAIResult();
   }
   
@@ -537,6 +557,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _updateMultiplayerGameResult() {
+    if (gameState.winner != null) {
+      SoundService().playWinSound();
+    } else if (gameState.gameOver) {
+      SoundService().playDrawSound();
+    }
     _saveMultiplayerResult();
   }
   
@@ -801,11 +826,7 @@ class GameBoard extends StatelessWidget {
   final GameState gameState;
   final Function(int) onCellTap;
 
-  const GameBoard({
-    Key? key,
-    required this.gameState,
-    required this.onCellTap,
-  }) : super(key: key);
+  const GameBoard({super.key, required this.gameState, required this.onCellTap});
 
   @override
   Widget build(BuildContext context) {
@@ -831,11 +852,7 @@ class GameCell extends StatefulWidget {
   final Player player;
   final VoidCallback onTap;
 
-  const GameCell({
-    Key? key,
-    required this.player,
-    required this.onTap,
-  }) : super(key: key);
+  const GameCell({super.key, required this.player, required this.onTap});
 
   @override
   State<GameCell> createState() => _GameCellState();
@@ -889,13 +906,7 @@ class GameStatus extends StatelessWidget {
   final String? player1Name;
   final String? player2Name;
 
-  const GameStatus({
-    Key? key,
-    required this.gameState,
-    required this.gameMode,
-    this.player1Name,
-    this.player2Name,
-  }) : super(key: key);
+  const GameStatus({super.key, required this.gameState, required this.gameMode, this.player1Name, this.player2Name});
 
   @override
   Widget build(BuildContext context) {
@@ -955,7 +966,7 @@ class GameStatus extends StatelessWidget {
 }
 
 class Attribution extends StatelessWidget {
-  const Attribution({Key? key}) : super(key: key);
+  const Attribution({super.key});
 
   @override
   Widget build(BuildContext context) {

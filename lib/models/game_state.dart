@@ -1,3 +1,5 @@
+import '../services/sound_service.dart';
+
 enum Player { human, ai, empty }
 
 class GameState {
@@ -23,6 +25,7 @@ class GameState {
 
   GameState() {
     resetGame();
+    SoundService().initialize();
   }
 
   void resetGame() {
@@ -40,6 +43,7 @@ class GameState {
   void makeMove(int index, Player player) {
     if (isValidMove(index)) {
       board[index] = player;
+      SoundService().playMoveSound(); // Play sound when move is made
       checkGameStatus();
       if (!gameOver) {
         currentPlayer = player == Player.human ? Player.ai : Player.human;
@@ -69,7 +73,7 @@ class GameState {
   }
 
   int? getAIMove() {
-    for (int i = 0; i < 9; i++) {
+    // Win if possible
     for (int i = 0; i < 9; i++) {
       if (board[i] == Player.empty) {
         board[i] = Player.ai;
@@ -80,7 +84,8 @@ class GameState {
         board[i] = Player.empty;
       }
     }
-    
+
+    // Block opponent's winning move
     for (int i = 0; i < 9; i++) {
       if (board[i] == Player.empty) {
         board[i] = Player.human;
@@ -91,21 +96,24 @@ class GameState {
         board[i] = Player.empty;
       }
     }
-    
+
+    // Take center if available
     if (board[4] == Player.empty) return 4;
-    
+
+    // Take a corner if available
     final corners = [0, 2, 6, 8];
     for (var c in corners) {
       if (board[c] == Player.empty) return c;
     }
-    
+
+    // Take any side
     for (int i = 0; i < 9; i++) {
       if (board[i] == Player.empty) return i;
     }
-    
+
     return null;
   }
-  
+
   Player? _checkWinner() {
     for (var pattern in winPatterns) {
       if (board[pattern[0]] != Player.empty &&

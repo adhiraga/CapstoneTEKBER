@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -58,5 +55,14 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1097735527570',
     projectId: 'fir-flutter-codelab-2a6a5',
     storageBucket: 'fir-flutter-codelab-2a6a5.firebasestorage.app',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAoVnCzJVk-MHW5_8E5ZrV6h4_s_t9hJ0w',
+    appId: '1:1097735527570:web:ee72a8acf0201cf7abda4b',
+    messagingSenderId: '1097735527570',
+    projectId: 'fir-flutter-codelab-2a6a5',
+    storageBucket: 'fir-flutter-codelab-2a6a5.firebasestorage.app',
+    authDomain: 'fir-flutter-codelab-2a6a5.firebaseapp.com',
   );
 }
