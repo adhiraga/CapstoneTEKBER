@@ -210,6 +210,5 @@ If you encounter build errors:
 ![Firebase Overview](<Screenshots/WhatsApp Image 2025-12-19 at 22.23.20_b1ef0abe.jpg>)
 ![Firebase Authentication](<Screenshots/WhatsApp Image 2025-12-19 at 22.23.54_85b6d256.jpg>)
 ![Database for User Auth](<Screenshots/WhatsApp Image 2025-12-19 at 22.24.43_113d3814.jpg>)
-![Query Result Database using Camelcase (Leaderboard)](<Screenshots/WhatsApp Image 2025-12-19 at 22.29.13_f5731408.jpg>)
 
 ## Reflection & Contribution
