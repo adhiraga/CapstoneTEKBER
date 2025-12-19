@@ -52,7 +52,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 ),
                 ButtonSegment(
                   value: 1,
-                  label: Text('Multiplayer Wins'),
+                  label: Text('Multiplayer Games'),
                 ),
               ],
               selected: {selectedCategory},
@@ -112,21 +112,26 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         return ListView.builder(
           itemCount: docs.length,
           itemBuilder: (context, index) {
-            final data = docs[index].data() as Map<String, dynamic>;
+            final doc = docs[index];
+            final data = doc.data() as Map<String, dynamic>;
             final username = data['username'] ?? 'Unknown';
             final aiWins = data['aiWins'] ?? 0;
+            final isCurrentUser = doc.id == _auth.currentUser?.uid;
 
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: isCurrentUser ? Colors.blue[50] : Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
+                border: isCurrentUser
+                    ? Border.all(color: Colors.blue[700]!, width: 2)
+                    : null,
               ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.blue[700],
+                    backgroundColor: isCurrentUser ? Colors.green[600] : Colors.blue[700],
                     foregroundColor: Colors.white,
                     child: Text('${index + 1}'),
                   ),
@@ -135,12 +140,37 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              username,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            if (isCurrentUser) ...<Widget>[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[600],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  'You',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
@@ -166,7 +196,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _firestore
           .collection('users')
-          .orderBy('multiplayerWins', descending: true)
+          .orderBy('multiplayerGamesPlayed', descending: true)
           .limit(10)
           .snapshots(),
       builder: (context, snapshot) {
@@ -201,21 +231,26 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         return ListView.builder(
           itemCount: docs.length,
           itemBuilder: (context, index) {
-            final data = docs[index].data() as Map<String, dynamic>;
+            final doc = docs[index];
+            final data = doc.data() as Map<String, dynamic>;
             final username = data['username'] ?? 'Unknown';
-            final multiplayerWins = data['multiplayerWins'] ?? 0;
+            final gamesPlayed = data['multiplayerGamesPlayed'] ?? 0;
+            final isCurrentUser = doc.id == _auth.currentUser?.uid;
 
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: isCurrentUser ? Colors.red[50] : Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
+                border: isCurrentUser
+                    ? Border.all(color: Colors.red[700]!, width: 2)
+                    : null,
               ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.red[700],
+                    backgroundColor: isCurrentUser ? Colors.green[600] : Colors.red[700],
                     foregroundColor: Colors.white,
                     child: Text('${index + 1}'),
                   ),
@@ -224,18 +259,43 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              username,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            if (isCurrentUser) ...<Widget>[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[600],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  'You',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
                   ),
                   Text(
-                    '$multiplayerWins wins',
+                    '$gamesPlayed games',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

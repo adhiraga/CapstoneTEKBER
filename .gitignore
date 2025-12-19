@@ -10,6 +10,9 @@
 .svn/
 migrate_working_dir/
 
+# Local documentation (not for upload)
+catetan/
+
 # IntelliJ related
 *.iml
 *.ipr

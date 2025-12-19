@@ -17,7 +17,7 @@ void main() async {
     );
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
-      debugPrint('Firebase already initialized');
+      print('Firebase already initialized');
     } else {
       rethrow;
     }
@@ -45,6 +45,7 @@ class TicTacTooApp extends StatelessWidget {
       ),
       home: const AuthScreen(),
       routes: {
+        '/auth': (context) => const AuthScreen(),
         '/home': (context) => const HomeScreen(),
       },
     );
@@ -60,107 +61,326 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late bool _soundEnabled;
+  String _username = '';
+  int _totalGames = 0;
+  int _totalWins = 0;
 
   @override
   void initState() {
     super.initState();
     _soundEnabled = SoundService().soundEnabled;
+    _loadUserStats();
+  }
+
+  Future<void> _loadUserStats() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+          setState(() {
+            _username = data['username'] ?? 'Player';
+            _totalWins = (data['aiWins'] ?? 0) as int;
+            final multiplayerGames = (data['multiplayerGamesPlayed'] ?? 0) as int;
+            _totalGames = _totalWins + multiplayerGames;
+          });
+        }
+      } catch (e) {
+        print('Error loading user stats: $e');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Tic Tac Toe',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _soundEnabled ? Icons.volume_up : Icons.volume_off,
-              color: _soundEnabled ? Colors.green : Colors.grey,
-            ),
-            onPressed: () {
-              setState(() {
-                SoundService().toggleSound();
-                _soundEnabled = SoundService().soundEnabled;
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.leaderboard, color: Colors.blue),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LeaderboardScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacementNamed('/auth');
-            },
-          ),
-        ],
-      ),
-      body: Center(
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 40),
-            const Text(
-              'Select Game Mode',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            // Top Icons Row
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _soundEnabled ? Icons.volume_up : Icons.volume_off,
+                      color: _soundEnabled ? Colors.green : Colors.grey,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        SoundService().toggleSound();
+                        _soundEnabled = SoundService().soundEnabled;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.red,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushReplacementNamed('/auth');
+                    },
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 60),
-            // AI Mode Button
-            GameModeButton(
-              title: 'Play vs AI',
-              subtitle: 'Play against the computer',
-              icon: Icons.computer,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const GameScreen(gameMode: GameMode.ai),
+            
+            // Main Content
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 20),
+                      // Title with Multiple Colors
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Tic ',
+                            style: TextStyle(
+                              fontSize: 52,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[800],
+                              letterSpacing: 2.5,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black.withAlpha((0.2 * 255).round()),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            'Tac ',
+                            style: TextStyle(
+                              fontSize: 52,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[800],
+                              letterSpacing: 2.5,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black.withAlpha((0.2 * 255).round()),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            'Toe',
+                            style: TextStyle(
+                              fontSize: 52,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal[700],
+                              letterSpacing: 2.5,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(2, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black.withAlpha((0.2 * 255).round()),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Welcome Message
+                      Text(
+                        'Welcome, $_username',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Stats Box
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.blue[100]!,
+                              Colors.blue[50]!,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Your Stats',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      '$_totalGames',
+                                      style: const TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Games',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      '$_totalWins',
+                                      style: const TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Wins',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Buttons
+                      _buildMenuButton(
+                        context,
+                        'Versus A.I',
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const GameScreen(gameMode: GameMode.ai),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildMenuButton(
+                        context,
+                        'Multiplayer',
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PlayerNamesScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildMenuButton(
+                        context,
+                        'Leaderboard',
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LeaderboardScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                );
-              },
+                ),
+              ),
             ),
-            const SizedBox(height: 30),
-            // Multiplayer Mode Button
-            GameModeButton(
-              title: 'Multiplayer',
-              subtitle: 'Play with another player',
-              icon: Icons.people,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PlayerNamesScreen(),
-                  ),
-                );
-              },
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context, String title, VoidCallback onPressed) {
+    IconData icon;
+    switch (title) {
+      case 'Versus A.I':
+        icon = Icons.computer;
+        break;
+      case 'Multiplayer':
+        icon = Icons.people;
+        break;
+      case 'Leaderboard':
+        icon = Icons.leaderboard;
+        break;
+      default:
+        icon = Icons.games;
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green[600],
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 24, color: Colors.white),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            const SizedBox(height: 60),
           ],
         ),
       ),
@@ -462,11 +682,62 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late GameState gameState;
   bool isAIThinking = false;
+  bool isWinClaimed = false;
 
   @override
   void initState() {
     super.initState();
     gameState = GameState();
+    
+    // Check authentication for AI mode
+    if (widget.gameMode == GameMode.ai) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkAuthenticationForAIMode();
+      });
+    }
+  }
+  
+  Future<void> _checkAuthenticationForAIMode() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    if (currentUser == null) {
+      print('INFO: User not logged in, showing login prompt');
+      
+      if (!mounted) return;
+      
+      final shouldLogin = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Login Required'),
+          content: const Text(
+            'You need to be logged in to play vs AI and save your progress to the leaderboard.\n\nWould you like to login now?'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Go Back'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Login'),
+            ),
+          ],
+        ),
+      );
+      
+      if (shouldLogin == true) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/auth');
+        }
+      } else {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    } else {
+      print('INFO: User logged in: ${currentUser.uid}');
+    }
   }
 
   void handleCellTap(int index) {
@@ -528,6 +799,7 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       gameState.resetGame();
       isAIThinking = false;
+      isWinClaimed = false;
     });
   }
 
@@ -537,22 +809,91 @@ class _GameScreenState extends State<GameScreen> {
     } else if (gameState.gameOver) {
       SoundService().playDrawSound();
     }
-    _saveAIResult();
   }
   
-  Future<void> _saveAIResult() async {
+  Future<void> _claimWin() async {
+    if (isWinClaimed) return;
+    
+    setState(() {
+      isWinClaimed = true;
+    });
+    
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
+      print('DEBUG: Checking auth state...');
+      print('DEBUG: Current user: ${currentUser?.uid}');
+      print('DEBUG: User email: ${currentUser?.email}');
+      print('DEBUG: Is anonymous: ${currentUser?.isAnonymous}');
+      
+      if (currentUser == null) {
+        print('ERROR: No user logged in');
+        setState(() {
+          isWinClaimed = false;
+        });
+        
+        // Show dialog to ask user to login
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Login Required'),
+                content: const Text(
+                  'You need to be logged in to save your progress.\n\nWould you like to login now?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushReplacementNamed('/auth');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Login'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        return;
+      }
 
-      if (gameState.winner == Player.human) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .update({'aiWins': FieldValue.increment(1)});
+      print('Claiming win for user: ${currentUser.uid}');
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update({'aiWins': FieldValue.increment(1)});
+      print('Win claimed successfully!');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Congratulations! Progress +1'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
-      debugPrint('Error updating AI result: $e');
+      print('Error claiming win: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to claim win: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        isWinClaimed = false;
+      });
     }
   }
 
@@ -570,12 +911,15 @@ class _GameScreenState extends State<GameScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
+      // Increment games played count when game is completed
       await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
-          .update({'multiplayerWins': FieldValue.increment(1)});
+          .update({'multiplayerGamesPlayed': FieldValue.increment(1)});
+      
+      print('Multiplayer game completed and counted');
     } catch (e) {
-      debugPrint('Error updating multiplayer result: $e');
+      print('Error saving result: $e');
     }
   }
 
@@ -724,9 +1068,8 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Mode indicator
             if (widget.gameMode == GameMode.ai)
@@ -782,18 +1125,32 @@ class _GameScreenState extends State<GameScreen> {
               player2Name: widget.player2Name,
             ),
             const SizedBox(height: 32),
+            if (widget.gameMode == GameMode.ai && 
+                gameState.gameOver && 
+                gameState.winner == Player.human && 
+                !isWinClaimed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: ElevatedButton.icon(
+                  onPressed: _claimWin,
+                  icon: const Icon(Icons.emoji_events),
+                  label: const Text('Claim Your Win!'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ),
             ElevatedButton.icon(
               onPressed: () {
-                // Save game result before resetting
                 if (gameState.gameOver) {
-                  if (widget.gameMode == GameMode.ai) {
-                    _updateAIGameResult();
-                  } else {
+                  if (widget.gameMode == GameMode.multiplayer) {
                     if (gameState.winner == Player.human) {
                       _updateMultiplayerGameResult();
-                    } else if (gameState.winner == Player.ai) {
-                      // Player 2 won, update player 2's wins
-                      // For now, we'll skip this - would need player2 Firebase info
                     }
                   }
                 }
@@ -810,9 +1167,9 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 32),
             const Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Attribution(),
             ),
           ],

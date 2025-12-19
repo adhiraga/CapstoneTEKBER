@@ -102,7 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
         'email': email,
         'password': password,
         'aiWins': 0,
-        'multiplayerWins': 0,
+        'multiplayerGamesPlayed': 0,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -170,23 +170,16 @@ class _AuthScreenState extends State<AuthScreen> {
         storedPassword = userData['password'];
       }
 
-      if (storedPassword != null) {
-        if (storedPassword != password) {
-          showSnackBar('Incorrect password');
-          setState(() => isLoading = false);
-          return;
-        }
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
-        }
-      } else {
-        await _auth.signInWithEmailAndPassword(
-          email: email!,
-          password: password,
-        );
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
-        }
+      // Always authenticate with Firebase Auth
+      await _auth.signInWithEmailAndPassword(
+        email: email!,
+        password: password,
+      );
+      
+      print('SUCCESS: User logged in: ${_auth.currentUser?.uid}');
+      
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
       }
     } on FirebaseAuthException catch (e) {
       String message = '';
@@ -219,13 +212,34 @@ class _AuthScreenState extends State<AuthScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Tic Tac Toe',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Tic ',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[800],
+              ),
+            ),
+            Text(
+              'Tac ',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[800],
+              ),
+            ),
+            Text(
+              'Toe',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.teal[700],
+              ),
+            ),
+          ],
         ),
       ),
       body: Center(

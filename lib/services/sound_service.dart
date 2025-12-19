@@ -17,26 +17,30 @@ class SoundService {
 
   Future<void> initialize() async {
     try {
-      // Set audio session configuration
+      print('Initializing SoundService...');
       await _audioPlayer.setAudioSource(
         ConcatenatingAudioSource(children: []),
       );
+      print('SoundService initialized successfully');
     } catch (e) {
-      debugPrint('Error initializing SoundService: $e');
+      print('Sound init error: $e');
     }
   }
 
   Future<void> playMoveSound() async {
-    if (!_soundEnabled) return;
+    if (!_soundEnabled) {
+      print('Sound disabled, not playing move sound');
+      return;
+    }
     
     try {
-      // Play a simple beep sound using just_audio's built-in capabilities
+      print('Playing move sound...');
       final source = AudioSource.uri(Uri.parse('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
       await _audioPlayer.setAudioSource(source, initialPosition: Duration.zero);
       await _audioPlayer.play();
+      print('Move sound played successfully');
     } catch (e) {
-      debugPrint('Error playing move sound: $e');
-      // Fallback: play a local beep if internet fails
+      print('Error playing move sound: $e');
       _playLocalBeep();
     }
   }
@@ -49,7 +53,7 @@ class SoundService {
       await _audioPlayer.setAudioSource(source, initialPosition: Duration.zero);
       await _audioPlayer.play();
     } catch (e) {
-      debugPrint('Error playing win sound: $e');
+      _playLocalBeep();
     }
   }
 
@@ -61,17 +65,17 @@ class SoundService {
       await _audioPlayer.setAudioSource(source, initialPosition: Duration.zero);
       await _audioPlayer.play();
     } catch (e) {
-      debugPrint('Error playing draw sound: $e');
+      _playLocalBeep();
     }
   }
 
   void _playLocalBeep() {
-    // Fallback method - can be extended later
-    debugPrint('Playing local beep fallback');
+    
   }
 
   void toggleSound() {
     _soundEnabled = !_soundEnabled;
+    print('Sound toggled: $_soundEnabled');
   }
 
   bool get soundEnabled => _soundEnabled;
