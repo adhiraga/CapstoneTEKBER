@@ -216,15 +216,7 @@ class _AuthScreenState extends State<AuthScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Tic ',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.green[800],
-              ),
-            ),
-            Text(
-              'Tac ',
+              'XO ',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -232,11 +224,11 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
             Text(
-              'Toe',
+              'Battle',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.teal[700],
+                color: Colors.red[700],
               ),
             ),
           ],

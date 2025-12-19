@@ -23,13 +23,13 @@ void main() async {
     }
   }
   
-  runApp(const TicTacTooApp());
+  runApp(const XOBattleApp());
 }
 
 enum GameMode { ai, multiplayer }
 
-class TicTacTooApp extends StatelessWidget {
-  const TicTacTooApp({super.key});
+class XOBattleApp extends StatelessWidget {
+  const XOBattleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
