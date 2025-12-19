@@ -1,19 +1,23 @@
-# Tic Tac Toe Game with Firebase Integration
+# XO Battle - Tic Tac Toe Game with Firebase Integration
+
+## Group Members
+
+Group 10 Emerging Technology
+Muhammad Abyansyah putra Dewanto 5026231052
+Ida Bagus Adhiraga Yudhistira 5026231120
 
 ## Project Description
 
-This is a Tic Tac Toe game application built using Flutter that incorporates Firebase for user authentication and leaderboard management. The application supports two game modes: playing against an AI opponent and multiplayer mode with two players. User game results are stored in Firestore database and displayed in a real-time leaderboard.
+XO Battle is a modern Tic Tac Toe game built with Flutter, with Firebase handling user login and the leaderboard. Players can choose to play against AI or another player in multiplayer mode. Game results are saved to Firestore and reflected immediately on the leaderboard, so scores update as matches finish.
 
 ## Features
 
-- User Authentication: Register and login with email and password
-- Dual Login Support: Login using username or email address
-- AI Opponent: Play against a computer with intelligent move strategy
+- User Authentication: Register and log in using email or username
+- AI Opponent: Play against a computer with intelligent move logic
 - Multiplayer Mode: Play against another human player
-- Real-time Leaderboard: View top players ranked by AI wins and multiplayer wins
-- Firebase Integration: Secure user data storage and authentication
-- Input Validation: Email format validation and password strength requirements
-- Password Confirmation: Users must confirm their password during registration
+- Real-time Leaderboard: View rankings based on AI and multiplayer wins
+- Firebase Integration: Secure authentication and data storage
+- Input Validation: Email format checks, password strength, and confirmation
 
 ## Technologies Used
 
@@ -39,7 +43,7 @@ cd CapstoneTEKBER/tictactoo
 ```
 
 ### 2. Install Flutter dependencies
-
+   
 ```bash
 flutter pub get
 ```
@@ -195,10 +199,17 @@ If you encounter build errors:
 
 ## Screenshots
 
-To be added
+![Register](Screenshots/Screenshot_20251219_220957.png)
+![Login](Screenshots/Screenshot_20251219_221142.png)
+![Homepage](Screenshots/Screenshot_20251219_221227.png)
+![Leaderboard AI](Screenshots/Screenshot_20251219_221328.png)
+![Leaderboard Multiplayer](Screenshots/Screenshot_20251219_221412.png)
+![Multiplayer](Screenshots/Screenshot_20251219_221459.png)
+![Versus AI](Screenshots/Screenshot_20251219_221531.png)
+![Figma](image.png)
+![Firebase Overview](<Screenshots/WhatsApp Image 2025-12-19 at 22.23.20_b1ef0abe.jpg>)
+![Firebase Authentication](<WhatsApp Image 2025-12-19 at 22.23.54_85b6d256.jpg>)
+![Database for User Auth](<WhatsApp Image 2025-12-19 at 22.24.43_113d3814.jpg>)
+![Query Result Database using Camelcase (Leaderboard](<WhatsApp Image 2025-12-19 at 22.29.13_f5731408.jpg>)
 
-## Group Members
-
-Group 10 TEKBER
-Muhammad Abyansyah putra Dewanto 5026231052
-Ida Bagus Adhiraga Yudhistira 5026231120
+## Reflection & Contribution

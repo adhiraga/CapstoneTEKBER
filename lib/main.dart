@@ -35,7 +35,7 @@ class TicTacTooApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tic Tac Toe',
+      title: 'XO Battle',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -151,23 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Tic ',
-                            style: TextStyle(
-                              fontSize: 52,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[800],
-                              letterSpacing: 2.5,
-                              shadows: [
-                                Shadow(
-                                  offset: const Offset(2, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black.withAlpha((0.2 * 255).round()),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            'Tac ',
+                            'XO ',
                             style: TextStyle(
                               fontSize: 52,
                               fontWeight: FontWeight.bold,
@@ -183,11 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           Text(
-                            'Toe',
+                            'Battle',
                             style: TextStyle(
                               fontSize: 52,
                               fontWeight: FontWeight.bold,
-                              color: Colors.teal[700],
+                              color: Colors.red[700],
                               letterSpacing: 2.5,
                               shadows: [
                                 Shadow(
@@ -511,7 +495,7 @@ class _PlayerNamesScreenState extends State<PlayerNamesScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Tic Tac Toe',
+          'XO Battle',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 28,
@@ -1060,7 +1044,7 @@ class _GameScreenState extends State<GameScreen> {
           onPressed: backToMenu,
         ),
         title: const Text(
-          'Tic Tac Toe',
+          'XO Battle',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 28,
